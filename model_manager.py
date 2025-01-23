@@ -15,7 +15,7 @@ MODEL_REPOS = {
 class ModelConfigurator:
     """模型配置管理器"""
 
-    def __init__(self, device='cpu', models_dir=None, use_modelscope=False):
+    def __init__(self, device='cpu', models_dir=None, use_modelscope=True):
         self.device = device
         self.use_modelscope = use_modelscope
         self.models_dir = models_dir
@@ -58,7 +58,6 @@ class ModelConfigurator:
             download_args = {
                 'repo_id': MODEL_REPOS[model_type],
                 'local_dir': str(cache_dir),  # 新增参数确保文件存储在指定位置
-                'local_dir_use_symlinks': False  # 禁用符号链接
             }
 
             # 仅在自定义路径时覆盖缓存目录

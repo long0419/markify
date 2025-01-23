@@ -64,7 +64,7 @@ def create_parser():
     model_group.add_argument(
         '--device',
         default='cpu',
-        choices=['cpu', 'cuda', 'cuda:0', 'cuda:1'],
+        choices=['cpu', 'mps', 'cuda', 'cuda:0', 'cuda:1'],
         help='计算设备选择（默认：%(default)s）'
     )
     model_group.add_argument(
