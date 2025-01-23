@@ -1,0 +1,24 @@
+# Core dependencies
+beautifulsoup4
+requests
+mammoth
+markdownify
+numpy
+python-pptx
+pandas
+openpyxl
+xlrd
+puremagic
+pydub
+olefile
+youtube-transcript-api
+SpeechRecognition
+pathvalidate
+charset-normalizer
+openai
+magic-pdf[full]
+modelscope~=1.22.2
+huggingface_hub~=0.27.1
+
+# Development dependencies (optional, install with `-r dev-requirements.txt`)
+mypy>=1.0.0
