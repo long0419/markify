@@ -20,6 +20,8 @@ class ModelConfigurator:
         self.use_modelscope = use_modelscope
         self.models_dir = models_dir
         self.config_path = self._get_config_path()
+        if self.use_modelscope:
+            MODEL_REPOS['layout'] = 'ppaanngggg/layoutreader'
 
     def _get_cache_dir(self, model_type):
         """获取符合各库规范的缓存目录"""
