@@ -23,6 +23,7 @@ security = HTTPBearer()
 API_KEY = os.getenv("MARKIT_API_KEY", "secret-key")
 OUTPUT_DIR = Path("output_files")
 OUTPUT_DIR.mkdir(exist_ok=True)
+port = int(os.getenv("PORT", 20926))  # 优先使用环境变量，默认 20926
 
 
 # 依赖项：API Key 验证
@@ -223,3 +224,7 @@ async def download_result(
         filename=f"{job.filename}.md",
         media_type="text/markdown"
     )
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=port)
