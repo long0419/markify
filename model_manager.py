@@ -20,6 +20,14 @@ class ModelConfigurator:
         self.use_modelscope = use_modelscope
         self.models_dir = models_dir
         self.config_path = self._get_config_path()
+        self.mineru_patterns = [
+            "models/Layout/LayoutLMv3/*",
+            "models/Layout/YOLO/*",
+            "models/MFD/YOLO/*",
+            "models/MFR/unimernet_small/*",
+            "models/TabRec/TableMaster/*",
+            "models/TabRec/StructEqTable/*",
+        ]
         if self.use_modelscope:
             MODEL_REPOS['layout'] = 'ppaanngggg/layoutreader'
 
@@ -60,6 +68,7 @@ class ModelConfigurator:
             download_args = {
                 'repo_id': MODEL_REPOS[model_type],
                 'local_dir': str(cache_dir),  # 新增参数确保文件存储在指定位置
+                'allow_patterns': self.mineru_patterns if model_type == 'main' else None  # 添加过滤规则
             }
 
             # 仅在自定义路径时覆盖缓存目录

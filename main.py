@@ -23,7 +23,8 @@ security = HTTPBearer()
 API_KEY = os.getenv("MARKIT_API_KEY", "secret-key")
 OUTPUT_DIR = Path("output_files")
 OUTPUT_DIR.mkdir(exist_ok=True)
-port = int(os.getenv("PORT", 20926))  # 优先使用环境变量，默认 20926
+MINER_RUNNING_DEVICE = os.getenv("MINER_RUNNING_DEVICE", "cpu")
+port = int(os.getenv("PORT", 20926))
 
 
 # 依赖项：API Key 验证
@@ -38,8 +39,28 @@ async def verify_api_key(
     return credentials
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """服务启动和关闭时的生命周期管理"""
+    try:
+        # 初始化模型
+        configurator = ModelConfigurator(
+            device=os.getenv("MINERU_DEVICE", MINER_RUNNING_DEVICE),
+            use_modelscope=True
+        )
+        configurator.setup_environment()
+        print("模型初始化完成")
+    except Exception as e:
+        print(f"模型初始化失败: {str(e)}")
+        raise
+
+    yield  # 应用运行期间
+
+    # 清理逻辑（可选）
+    print("服务关闭，清理资源...")
+
 # FastAPI 应用
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
 # from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -64,27 +85,6 @@ class JobResultResponse(BaseModel):
     job_id: str
     download_url: str
     format: str
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """服务启动和关闭时的生命周期管理"""
-    try:
-        # 初始化模型
-        configurator = ModelConfigurator(
-            device=os.getenv("MINERU_DEVICE", "cpu"),
-            use_modelscope=True
-        )
-        configurator.setup_environment()
-        print("模型初始化完成")
-    except Exception as e:
-        print(f"模型初始化失败: {str(e)}")
-        raise
-
-    yield  # 应用运行期间
-
-    # 清理逻辑（可选）
-    print("服务关闭，清理资源...")
 
 
 def process_file(db: Session, job_id: str, file_content: bytes, filename: str, pdf_mode: str = "simple"):
@@ -225,6 +225,8 @@ async def download_result(
         media_type="text/markdown"
     )
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=port)
