@@ -1,6 +1,7 @@
 # Markify
 
-Based on markitdown and mineru.
+Convert files into markdown to help RAG or LLM understand, based on markitdown and MinerU, which could provide high quality pdf parser.
+In current, it support simple pdf model(use pdfminer, it is fast) and advanced pdf model (use mineru with models to parse pdf, it is slow).
 
 
 ## API
