@@ -1,6 +1,9 @@
 This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
+Portions of this software are derived from the following project, see NOTICE for details.
+- [MarkitDown] (https://github.com/microsoft/markitdown) under the MIT License.
+- [MinerU] (https://github.com/opendatalab/MinerU) under the AGPL License.
 
-Portions of this project are derived from code originally licensed under the MIT license. See NOTICE for details.
+
 
                     GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
