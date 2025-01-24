@@ -166,8 +166,8 @@ class MarkItDown:
         base, ext = os.path.splitext(path)
         self._append_ext(extensions, ext)
 
-        # for g in self._guess_ext_magic(path):
-        #     self._append_ext(extensions, g)
+        for g in self._guess_ext_magic(path):
+            self._append_ext(extensions, g)
 
         # Convert
         return self._convert(path, extensions, **kwargs)

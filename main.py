@@ -1,131 +1,225 @@
-# SPDX-FileCopyrightText: 2024-present Adam Fourney <adamfo@microsoft.com>
-#
-# SPDX-License-Identifier: MIT
-import argparse
-import sys
-from textwrap import dedent
-from __about__ import __version__
-from _markitdown import MarkItDown, DocumentConverterResult
+import io
+import os
+import uuid
+from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Optional
+
+from fastapi import FastAPI, UploadFile, File, HTTPException, status, Depends, BackgroundTasks, Form
+from fastapi.responses import FileResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from _markitdown import MarkItDown
+from base import DocumentConverterResult
 from model_manager import ModelConfigurator
+from repository.db import get_db, Job
+
+# 安全验证
+security = HTTPBearer()
+
+# 从环境变量获取API密钥
+API_KEY = os.getenv("MARKIT_API_KEY", "secret-key")
+OUTPUT_DIR = Path("output_files")
+OUTPUT_DIR.mkdir(exist_ok=True)
 
 
-def create_parser():
-    """创建无冲突参数解析器"""
-    parser = argparse.ArgumentParser(
-        description="Markdown转换工具（集成模型管理）",
-        prog="markitdown",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage=dedent("""
-            语法:
-              markitdown [选项] [输入文件]
-
-            示例:
-              # 基本使用
-              markitdown input.pdf -o output.md
-
-              # 使用GPU加速
-              markitdown input.pdf --device cuda:0
-
-              # 自定义模型路径
-              markitdown input.pdf --models-dir ~/my_models
-
-              # 使用ModelScope源
-              markitdown input.pdf --use-modelscope
-            """).strip(),
-        add_help=False  # 关键点：禁用默认help
-    )
-
-    # 核心参数
-    parser.add_argument(
-        '-h', '--help',
-        action='help',  # 使用内置help action
-        default=argparse.SUPPRESS,
-        help='显示帮助信息'
-    )
-    parser.add_argument(
-        '-v', '--version',
-        action='version',
-        version=f'%(prog)s {__version__}',
-        help='显示版本信息'
-    )
-    parser.add_argument(
-        'filename',
-        nargs='?',
-        help='输入文件路径（可选，可从stdin读取）'
-    )
-    parser.add_argument(
-        '-o', '--output',
-        metavar='FILE',
-        help='输出文件路径（默认输出到stdout）'
-    )
-
-    # 模型配置参数组
-    model_group = parser.add_argument_group('模型配置')
-    model_group.add_argument(
-        '--device',
-        default='cpu',
-        choices=['cpu', 'mps', 'cuda', 'cuda:0', 'cuda:1'],
-        help='计算设备选择（默认：%(default)s）'
-    )
-    model_group.add_argument(
-        '--models-dir',
-        metavar='PATH',
-        help='自定义模型存储路径（默认：~/.markitdown_models）'
-    )
-    model_group.add_argument(
-        '--use-modelscope',
-        action='store_true',
-        help='使用ModelScope下载模型（默认使用HuggingFace Hub）'
-    )
-
-    # PDF处理参数组
-    pdf_group = parser.add_argument_group('PDF处理')
-    pdf_group.add_argument(
-        '--pdf-mode',
-        default='simple',
-        choices=['simple', 'advanced', 'cloud'],
-        help='PDF处理模式（默认：%(default)s）'
-    )
-
-    return parser
+# 依赖项：API Key 验证
+async def verify_api_key(
+        credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    if credentials.scheme != "Bearer" or credentials.credentials != API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API Key",
+        )
+    return credentials
 
 
-def main():
-    parser = create_parser()
-    args = parser.parse_args()
+# FastAPI 应用
+app = FastAPI()
 
+
+# from slowapi import Limiter, _rate_limit_exceeded_handler
+# from slowapi.errors import RateLimitExceeded
+# from slowapi.util import get_remote_address
+# limiter = Limiter(key_func=get_remote_address)
+# app.state.limiter = limiter
+# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# @limiter.limit("100/minute")
+
+
+# 数据模型
+class JobStatusResponse(BaseModel):
+    job_id: str
+    status: str
+    filename: str
+    params: dict
+    error: Optional[str]
+
+
+class JobResultResponse(BaseModel):
+    job_id: str
+    download_url: str
+    format: str
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """服务启动和关闭时的生命周期管理"""
     try:
-        # 初始化模型配置
+        # 初始化模型
         configurator = ModelConfigurator(
-            device=args.device,
-            models_dir=args.models_dir,
-            use_modelscope=args.use_modelscope
+            device=os.getenv("MINERU_DEVICE", "cpu"),
+            use_modelscope=True
         )
         configurator.setup_environment()
+        print("模型初始化完成")
+    except Exception as e:
+        print(f"模型初始化失败: {str(e)}")
+        raise
 
-        # 执行主逻辑
-        if args.filename is None:
-            markitdown = MarkItDown(pdf_mode=args.pdf_mode)
-            result = markitdown.convert_stream(sys.stdin.buffer)
+    yield  # 应用运行期间
+
+    # 清理逻辑（可选）
+    print("服务关闭，清理资源...")
+
+
+def process_file(db: Session, job_id: str, file_content: bytes, filename: str, pdf_mode: str = "simple"):
+    """处理各种文件的后台任务"""
+    try:
+        # 更新任务状态为 processing
+        job = db.query(Job).filter(Job.id == job_id).first()
+        if not job:
+            raise ValueError(f"Job {job_id} not found")
+
+        job.status = "processing"
+        db.commit()
+
+        # 创建处理器
+        markitdown = MarkItDown(pdf_mode=pdf_mode)
+
+        # 根据输入类型处理
+        if filename.endswith('.md'):
+            result = DocumentConverterResult(text_content=file_content.decode('utf-8'))
         else:
-            markitdown = MarkItDown(pdf_mode=args.pdf_mode)
-            result = markitdown.convert(args.filename)
+            # 将字节内容转为文件流
+            file_stream = io.BytesIO(file_content)
+            result = markitdown.convert_stream(file_stream)
 
-        _handle_output(args, result)
+        # 保存结果到文件
+        output_file = OUTPUT_DIR / f"{job_id}.md"
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write(result.text_content)
+
+        # 更新任务状态为 completed
+        job.status = "completed"
+        job.result_file = str(output_file)
+        db.commit()
 
     except Exception as e:
-        print(f"错误: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+        # 更新任务状态为 failed
+        job.status = "failed"
+        job.error = f"{type(e).__name__}: {str(e)}"
+        db.commit()
 
 
-def _handle_output(args, result: DocumentConverterResult):
-    """处理输出"""
-    if args.output:
-        with open(args.output, "w", encoding="utf-8") as f:
-            f.write(result.text_content)
-    else:
-        print(result.text_content)
+@app.post("/api/jobs", status_code=status.HTTP_202_ACCEPTED)
+async def upload_file(
+        background_tasks: BackgroundTasks,
+        file: UploadFile = File(...),
+        pdf_mode: str = Form("simple"),
+        db: Session = Depends(get_db)
+):
+    """上传文件并启动转换任务"""
+    # 生成任务ID
+    job_id = str(uuid.uuid4())
+
+    try:
+        # 读取文件内容
+        content = await file.read()
+
+        # 创建任务记录
+        job = Job(
+            id=job_id,
+            filename=file.filename,
+            params={"pdf_mode": pdf_mode},
+            status="pending"
+        )
+        db.add(job)
+        db.commit()
+
+        # 启动后台任务
+        background_tasks.add_task(
+            process_file,
+            db=db,
+            job_id=job_id,
+            file_content=content,
+            filename=file.filename,
+            pdf_mode=pdf_mode
+        )
+
+        return {"job_id": job_id}
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"File upload failed: {str(e)}"
+        )
 
 
-if __name__ == "__main__":
-    main()
+@app.get("/api/jobs/{job_id}", response_model=JobStatusResponse)
+async def get_job_status(
+        job_id: str,
+        db: Session = Depends(get_db)
+):
+    """查询任务状态"""
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+
+    return JobStatusResponse(
+        job_id=job.id,
+        status=job.status,
+        filename=job.filename,
+        params=job.params,
+        error=job.error
+    )
+
+
+@app.get("/api/jobs/{job_id}/result")
+async def download_result(
+        job_id: str,
+        db: Session = Depends(get_db)
+):
+    """下载任务结果文件"""
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+
+    if job.status != "completed":
+        raise HTTPException(
+            status_code=status.HTTP_425_TOO_EARLY,
+            detail="Job not completed"
+        )
+
+    result_file = job.result_file
+    if not result_file or not os.path.exists(result_file):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Result file not found"
+        )
+
+    # 返回文件内容
+    return FileResponse(
+        result_file,
+        filename=f"{job.filename}.md",
+        media_type="text/markdown"
+    )

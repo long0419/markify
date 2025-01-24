@@ -1,16 +1,16 @@
 # Core dependencies
-beautifulsoup4
-requests
-mammoth
-markdownify
+beautifulsoup4~=4.12.3
+requests~=2.32.3
+mammoth~=1.9.0
+markdownify~=0.14.1
 numpy
 python-pptx
-pandas
+pandas~=2.2.3
 openpyxl
 xlrd
-puremagic
-pydub
-olefile
+puremagic~=1.28
+pydub~=0.25.1
+olefile~=0.47
 youtube-transcript-api
 SpeechRecognition
 pathvalidate
@@ -19,6 +19,14 @@ openai
 magic-pdf[full]
 modelscope~=1.22.2
 huggingface_hub~=0.27.1
-
+slowapi~=0.1.9
+limits~=4.0.1
+python-multipart~=0.0.20
+uvicorn>=0.34.0
+sqlalchemy>=2.0.37
 # Development dependencies (optional, install with `-r dev-requirements.txt`)
 mypy>=1.0.0
+
+fastapi~=0.115.7
+pydantic~=2.10.5
+setuptools~=75.1.0
