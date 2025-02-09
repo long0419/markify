@@ -20,7 +20,7 @@ RUN pip install --upgrade -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simpl
 COPY . .
 
 # 暴露应用服务端口
-EXPOSE 8000
+EXPOSE 20926
 
 # 定义启动命令
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "20926"]
