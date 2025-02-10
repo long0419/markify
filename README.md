@@ -51,7 +51,20 @@ curl -X 'GET' \
 响应
 文件
 
+
+## Docker部署
+```shell
+docker pull wsjcuhk/markify:0.0.1
+docker run -d -p 20926:20926 wsjcuhk/markify:0.0.1
+```
+
+## 基于streamlit的web界面
+![alt text](image.png)
+```shell
+streamlit run ./client/streamlit_client.py
+```
+
+
 ## TODO
 - 优化Mineru中输出的图像地址为本机地址
 - 添加云端解析模式
-- 添加简单的web页面
