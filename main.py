@@ -63,6 +63,8 @@ async def lifespan(app: FastAPI):
 
 # FastAPI 应用
 app = FastAPI(lifespan=lifespan)
+if not os.path.exists("output/images"):
+    os.mkdir("output/images")
 app.mount("/images", StaticFiles(directory="output/images"), name="images")
 
 
@@ -111,7 +113,7 @@ def process_file(db: Session, job_id: str, file_content: bytes, filename: str, p
         else:
             # 将字节内容转为文件流
             file_stream = io.BytesIO(file_content)
-            result = markitdown.convert_stream(file_stream)
+            result = markitdown.convert_stream(file_stream, base_url="http://localhost:20926")
 
         # 保存结果到文件
         output_file = OUTPUT_DIR / f"{job_id}.md"

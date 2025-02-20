@@ -33,7 +33,7 @@ class AdvancedPdfConverter(DocumentConverter):
 
         try:
             from core.converters.mineru.pdf_processor import PDFProcessor
-            processor = PDFProcessor()
+            processor = PDFProcessor(**kwargs)
             result = processor.process(local_path)
             
             # 读取生成的markdown文件

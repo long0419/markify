@@ -1,3 +1,5 @@
+import re
+import urllib.parse
 from pathlib import Path
 from typing import Dict
 
@@ -12,9 +14,10 @@ from core.converters.mineru.title_corrector import MarkdownTitleProcessor
 class PDFProcessor:
     """PDF文档处理管道"""
 
-    def __init__(self, output_dir: str = "output"):
+    def __init__(self, output_dir: str = "output", base_url: str = "http://localhost:20926", **kwargs):
         self.output_dir = Path(output_dir)
         self.image_dir = self.output_dir / "images"
+        self.base_url = base_url
         self._prepare_directories()
 
     def _prepare_directories(self):
@@ -50,6 +53,8 @@ class PDFProcessor:
         # 自动修正标题层级
         self._adjust_title_levels(output_files['markdown'])
 
+        self._replace_image_paths(output_files['markdown'], self.base_url)
+
         return output_files
 
     def _generate_outputs(self, result, writers, name_stem: str) -> Dict[str, str]:
@@ -67,6 +72,20 @@ class PDFProcessor:
             'images': str(self.image_dir),
             # 'middle_json': str(self.output_dir / f"{name_stem}_middle.json")
         }
+
+    def _replace_image_paths(self, md_path: str, base_url: str):
+        """替换Markdown文件中的本地图像路径为HTTP URL"""
+        with open(md_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # 匹配 Markdown 中的图像链接，假设格式为 ![alt](images/xxxxx)
+        pattern = r'!\[.*?\]\((images/.*?)\)'
+        replacement = lambda m: f'![{m.group(0).split("]")[0].split("[")[1]}]({urllib.parse.urljoin(base_url, "images/")}{m.group(1).split("/")[-1]})'
+        new_content = re.sub(pattern, replacement, content)
+
+        # 将修改后的内容写回文件
+        with open(md_path, 'w', encoding='utf-8') as f:
+            f.write(new_content)
 
     def _adjust_title_levels(self, md_path: str):
         """执行Markdown标题修正"""
