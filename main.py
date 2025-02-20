@@ -21,7 +21,7 @@ security = HTTPBearer()
 
 # 从环境变量获取API密钥
 API_KEY = os.getenv("MARKIT_API_KEY", "secret-key")
-OUTPUT_DIR = Path("output_files")
+OUTPUT_DIR = Path("output")
 OUTPUT_DIR.mkdir(exist_ok=True)
 MINER_RUNNING_DEVICE = os.getenv("MINER_RUNNING_DEVICE", "cpu")
 port = int(os.getenv("PORT", 20926))

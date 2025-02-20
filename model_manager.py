@@ -6,6 +6,7 @@ from huggingface_hub import snapshot_download as hf_download
 from modelscope.hub.snapshot_download import snapshot_download as ms_download
 
 DEFAULT_CONFIG_NAME = "magic-pdf.json"
+GITHUB_TEMPLATE_URL = "https://raw.githubusercontent.com/opendatalab/MinerU/master/magic-pdf.template.json"
 MODEL_REPOS = {
     'main': 'opendatalab/PDF-Extract-Kit-1.0',
     'layout': 'hantian/layoutreader'
@@ -24,7 +25,7 @@ class ModelConfigurator:
             "models/Layout/LayoutLMv3/*",
             "models/Layout/YOLO/*",
             "models/MFD/YOLO/*",
-            "models/MFR/unimernet_small/*",
+            "models/MFR/unimernet_small_2501/*",
             "models/TabRec/TableMaster/*",
             "models/TabRec/StructEqTable/*",
         ]
@@ -87,17 +88,27 @@ class ModelConfigurator:
 
     def _generate_config(self):
         """生成配置文件"""
-        config = {
+        template_path = "assets/magic-pdf-template.json"
+        try:
+            with open(template_path, "r") as f:
+                template_config = json.load(f)
+            print(f"成功加载模板配置: {template_path}")
+        except Exception as e:
+            print(f"加载模板配置失败，使用默认值: {e}")
+            template_config = {}
+
+        custom_config = {
             "device-mode": self.device,
             "models-dir": str(self.main_model_path),
             "layoutreader-model-dir": str(self.layout_model_path),
-            "config_version": "1.1.0"
         }
+        template_config.update(custom_config)
+        config = template_config
 
         if self.config_path.exists():
             with open(self.config_path, 'r') as f:
                 existing_config = json.load(f)
-            existing_config.update(config)
+            existing_config.update(custom_config)
             config = existing_config
 
         with open(self.config_path, 'w') as f:

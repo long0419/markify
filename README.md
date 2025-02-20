@@ -1,7 +1,7 @@
 # Markify
 
 Convert files into markdown to help RAG or LLM understand, based on markitdown and MinerU, which could provide high quality pdf parser.
-In current, it support simple pdf model(use pdfminer, it is fast) and advanced pdf model (use mineru with models to parse pdf, it is slow).
+In current, it supports simple pdf model(use pdfminer, it is fast) and advanced pdf model (use mineru with models to parse pdf, it is slow).
 
 
 ## API
@@ -59,7 +59,7 @@ docker run -d -p 20926:20926 wsjcuhk/markify:0.0.1
 ```
 
 ## 基于streamlit的web界面
-![alt text](image.png)
+![alt text](assets/image.png)
 ```shell
 streamlit run ./client/streamlit_client.py
 ```
