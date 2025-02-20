@@ -1,30 +1,25 @@
 # Markify
 
-✨ **将文件转换为 Markdown，助力 RAG 与 LLM 更好地理解内容！** ✨  
+✨ **轻松转换文件为 Markdown，助力 RAG 与 LLM 更智能地理解内容！** ✨  
 
-🚀 **基于 Markitdown 和 MinerU**，不仅支持多种格式转换（如 Markitdown），还可借助 MinerU 提供高质量的 **PDF 解析** 功能。  
+🚀 **基于 Markitdown 与 MinerU**，支持多种格式转换，并提供 **高质量 PDF 解析**，让你的文档更易处理、更易用！  
 
-📡 **支持 API 接口 & Streamlit 页面**，随时随地轻松使用！  
+📡 **支持 API & Streamlit 端**，随时随地高效转换，轻松集成！  
 
-📖 **当前支持的文件格式，包括但不限于以下格式**：
-- PDF
-- PPT
-- Word
-- Excel
-- Images
-- Audio
-- HTML
-- CSV, JSON和XML
-- ZIP压缩文件
+📂 **支持多种文件格式**：
+- 📄 **文档**：PDF、Word、PPT、Excel  
+- 🖼 **多媒体**：图片、音频  
+- 🌐 **网页与数据**：HTML、CSV、JSON、XML  
+- 🗂 **压缩文件**：ZIP  
 
-📖 **当前支持的 PDF 解析模式**：  
-- ⚡ **简单模式**（使用 pdfminer，解析速度快）  
-- 🏆 **高级模式**（使用 MinerU，结合模型解析 PDF，效果更优但速度较慢）  
+⚡ **多种 PDF 解析模式，满足不同需求**：
+- 🚀 **快速模式**（基于 pdfminer，解析高效）  
+- 🏆 **高级模式**（结合 MinerU 深度解析，效果更佳）  
 - ☁️ **云端模式**（开发中，敬请期待！）  
 
-📂 **高效转换，轻松集成，助力你的 LLM 处理文档！** 💡
+📖 **Markdown 化你的文件，助力 LLM 更好地理解与处理文档！** 💡
 
-![alt text](assets/streamlint ui.png)
+![alt text](assets/streamlint_ui.png)
 ```shell
 streamlit run ./client/streamlit_client.py
 ```
