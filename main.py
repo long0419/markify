@@ -3,13 +3,14 @@ import os
 import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, status, Depends, BackgroundTasks, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, status, Depends, BackgroundTasks, Form, Query
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from fastapi.staticfiles import StaticFiles
 
 from _markitdown import MarkItDown
 from base import DocumentConverterResult
@@ -59,8 +60,11 @@ async def lifespan(app: FastAPI):
     # 清理逻辑（可选）
     print("服务关闭，清理资源...")
 
+
 # FastAPI 应用
 app = FastAPI(lifespan=lifespan)
+app.mount("/images", StaticFiles(directory="output/images"), name="images")
+
 
 
 # from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -168,6 +172,31 @@ async def upload_file(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"File upload failed: {str(e)}"
         )
+
+
+@app.get("/api/jobs", response_model=List[JobStatusResponse])
+async def list_jobs(
+        db: Session = Depends(get_db),
+        page: int = Query(0, ge=0, description=""),
+        limit: int = Query(10, gt=0, le=100, description="default 10，max 100")):
+    """查询任务状态"""
+    jobs = db.query(Job).order_by(Job.created_at.desc()).limit(limit).offset(page * limit).all()
+    if not jobs:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+
+    response_list = []
+    for job in jobs:
+        response_list.append(JobStatusResponse(
+            job_id=job.id,
+            status=job.status,
+            filename=job.filename,
+            params=job.params,
+            error=job.error
+        ))
+    return response_list
 
 
 @app.get("/api/jobs/{job_id}", response_model=JobStatusResponse)
