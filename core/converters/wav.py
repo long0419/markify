@@ -19,8 +19,8 @@ except ModuleNotFoundError:
 finally:
     resetwarnings()
 
-from base import DocumentConverterResult
-from converters.media import MediaConverter
+from core.base import DocumentConverterResult
+from core.converters.media import MediaConverter
 
 
 class WavConverter(MediaConverter):

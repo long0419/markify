@@ -21,8 +21,8 @@ except ModuleNotFoundError:
 finally:
     resetwarnings()
 
-from base import DocumentConverterResult
-from converters.wav import WavConverter
+from core.base import DocumentConverterResult
+from core.converters.wav import WavConverter
 
 
 class Mp3Converter(WavConverter):

@@ -3,7 +3,7 @@ from typing import Any, Union
 
 from charset_normalizer import from_path
 
-from base import DocumentConverter, DocumentConverterResult
+from core.base import DocumentConverter, DocumentConverterResult
 
 
 class PlainTextConverter(DocumentConverter):

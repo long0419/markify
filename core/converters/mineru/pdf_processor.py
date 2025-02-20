@@ -6,7 +6,7 @@ from magic_pdf.data.data_reader_writer import FileBasedDataWriter, FileBasedData
 from magic_pdf.data.dataset import PymuDocDataset
 from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 
-from converters.mineru.title_corrector import MarkdownTitleProcessor
+from core.converters.mineru.title_corrector import MarkdownTitleProcessor
 
 
 class PDFProcessor:

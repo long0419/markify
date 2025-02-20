@@ -2,8 +2,8 @@ import base64
 import mimetypes
 from typing import Union
 
-from base import DocumentConverterResult
-from converters.media import MediaConverter
+from core.base import DocumentConverterResult
+from core.converters.media import MediaConverter
 
 
 class ImageConverter(MediaConverter):

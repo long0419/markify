@@ -3,7 +3,7 @@ import shutil
 import subprocess
 from _warnings import warn
 
-from base import DocumentConverter
+from core.base import DocumentConverter
 
 
 class MediaConverter(DocumentConverter):

@@ -2,7 +2,7 @@ from typing import Union, Any
 
 from olefile import olefile
 
-from base import FileConversionException, DocumentConverterResult, DocumentConverter
+from core.base import FileConversionException, DocumentConverterResult, DocumentConverter
 
 
 class OutlookMsgConverter(DocumentConverter):

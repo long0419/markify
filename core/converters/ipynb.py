@@ -1,7 +1,7 @@
 import json
 from typing import Any, Union
 
-from base import DocumentConverter, DocumentConverterResult, FileConversionException
+from core.base import DocumentConverter, DocumentConverterResult, FileConversionException
 
 
 class IpynbConverter(DocumentConverter):

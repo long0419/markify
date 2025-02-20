@@ -1,7 +1,7 @@
 from typing import Union
 from pathlib import Path
 
-from base import DocumentConverter, DocumentConverterResult, FileConversionException
+from core.base import DocumentConverter, DocumentConverterResult, FileConversionException
 
 
 class PdfConverter(DocumentConverter):
@@ -32,7 +32,7 @@ class AdvancedPdfConverter(DocumentConverter):
             return None
 
         try:
-            from converters.mineru.pdf_processor import PDFProcessor
+            from core.converters.mineru.pdf_processor import PDFProcessor
             processor = PDFProcessor()
             result = processor.process(local_path)
             

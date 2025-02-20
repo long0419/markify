@@ -13,7 +13,7 @@ class DocumentConverter:
     """Abstract superclass of all DocumentConverters."""
 
     def convert(
-        self, local_path: str, **kwargs: Any
+            self, local_path: str, **kwargs: Any
     ) -> Union[None, DocumentConverterResult]:
         raise NotImplementedError()
 

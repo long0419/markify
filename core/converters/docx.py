@@ -2,8 +2,8 @@ from typing import Union
 
 import mammoth
 
-from base import DocumentConverterResult
-from converters.html import HtmlConverter
+from core.base import DocumentConverterResult
+from core.converters.html import HtmlConverter
 
 
 class DocxConverter(HtmlConverter):

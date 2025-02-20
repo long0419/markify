@@ -14,7 +14,7 @@ except ModuleNotFoundError:
     pass
 
 
-from base import DocumentConverter, DocumentConverterResult
+from core.base import DocumentConverter, DocumentConverterResult
 
 
 class YouTubeConverter(DocumentConverter):

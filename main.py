@@ -12,9 +12,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 
-from _markitdown import MarkItDown
-from base import DocumentConverterResult
-from model_manager import ModelConfigurator
+from core.markitdown import MarkItDown
+from core.base import DocumentConverterResult
+from core.model_manager import ModelConfigurator
 from repository.db import get_db, Job
 
 # 安全验证

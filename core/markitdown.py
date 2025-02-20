@@ -14,23 +14,23 @@ from warnings import warn
 import puremagic
 import requests
 
-from base import DocumentConverterResult, DocumentConverter, FileConversionException, UnsupportedFormatException
-from converters.bingsearch import BingSerpConverter
-from converters.docx import DocxConverter
-from converters.html import HtmlConverter
-from converters.image import ImageConverter
-from converters.ipynb import IpynbConverter
-from converters.mp3 import Mp3Converter
-from converters.outlook import OutlookMsgConverter
-from converters.plaintext import PlainTextConverter
-from converters.pptx import PptxConverter
-from converters.rss import RSSConverter
-from converters.wav import WavConverter
-from converters.wikipedia import WikipediaConverter
-from converters.xls import XlsConverter
-from converters.xlsx import XlsxConverter
-from converters.youtube import YouTubeConverter
-from converters.zip import ZipConverter
+from core.base import DocumentConverterResult, DocumentConverter, FileConversionException, UnsupportedFormatException
+from core.converters.bingsearch import BingSerpConverter
+from core.converters.docx import DocxConverter
+from core.converters.html import HtmlConverter
+from core.converters.image import ImageConverter
+from core.converters.ipynb import IpynbConverter
+from core.converters.mp3 import Mp3Converter
+from core.converters.outlook import OutlookMsgConverter
+from core.converters.plaintext import PlainTextConverter
+from core.converters.pptx import PptxConverter
+from core.converters.rss import RSSConverter
+from core.converters.wav import WavConverter
+from core.converters.wikipedia import WikipediaConverter
+from core.converters.xls import XlsConverter
+from core.converters.xlsx import XlsxConverter
+from core.converters.youtube import YouTubeConverter
+from core.converters.zip import ZipConverter
 
 
 class MarkItDown:
@@ -116,13 +116,13 @@ class MarkItDown:
         # 动态注册PDF转换器
         # 确保PDF转换器只处理PDF文件
         if self.pdf_mode == 'advanced':
-            from converters.pdf import AdvancedPdfConverter
+            from core.converters.pdf import AdvancedPdfConverter
             self.register_page_converter(AdvancedPdfConverter())
         elif self.pdf_mode == 'cloud':
-            from converters.pdf import CloudPdfConverter
+            from core.converters.pdf import CloudPdfConverter
             self.register_page_converter(CloudPdfConverter())
         else:  # 默认simple模式
-            from converters.pdf import PdfConverter
+            from core.converters.pdf import PdfConverter
             self.register_page_converter(PdfConverter())
 
         self.register_page_converter(ZipConverter())

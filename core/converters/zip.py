@@ -3,7 +3,7 @@ import shutil
 import zipfile
 from typing import Any, Union
 
-from base import DocumentConverterResult, DocumentConverter
+from core.base import DocumentConverterResult, DocumentConverter
 
 
 class ZipConverter(DocumentConverter):

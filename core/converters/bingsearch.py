@@ -6,8 +6,8 @@ from urllib.parse import parse_qs, urlparse
 
 from bs4 import BeautifulSoup
 
-from base import DocumentConverter, DocumentConverterResult
-from converters.custommarkdownify import _CustomMarkdownify
+from core.base import DocumentConverter, DocumentConverterResult
+from core.converters.custommarkdownify import _CustomMarkdownify
 
 
 class BingSerpConverter(DocumentConverter):

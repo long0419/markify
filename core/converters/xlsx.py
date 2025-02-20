@@ -2,22 +2,22 @@ from typing import Union
 
 import pandas as pd
 
-from base import DocumentConverterResult
-from converters.html import HtmlConverter
+from core.base import DocumentConverterResult
+from core.converters.html import HtmlConverter
 
 
-class XlsConverter(HtmlConverter):
+class XlsxConverter(HtmlConverter):
     """
-    Converts XLS files to Markdown, with each sheet presented as a separate Markdown table.
+    Converts XLSX files to Markdown, with each sheet presented as a separate Markdown table.
     """
 
     def convert(self, local_path, **kwargs) -> Union[None, DocumentConverterResult]:
-        # Bail if not a XLS
+        # Bail if not a XLSX
         extension = kwargs.get("file_extension", "")
-        if extension.lower() != ".xls":
+        if extension.lower() != ".xlsx":
             return None
 
-        sheets = pd.read_excel(local_path, sheet_name=None, engine="xlrd")
+        sheets = pd.read_excel(local_path, sheet_name=None, engine="openpyxl")
         md_content = ""
         for s in sheets:
             md_content += f"## {s}\n"
