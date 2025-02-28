@@ -34,7 +34,7 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@CoA.pdf;type=application/pdf' \
-  -F 'pdf_mode=advanced'
+  -F 'mode=advanced'
 ```
 响应
 ```json
@@ -56,7 +56,7 @@ curl -X 'GET' \
   "status": "completed",
   "filename": "CoA.pdf",
   "params": {
-    "pdf_mode": "advanced"
+    "mode": "advanced"
   },
   "error": null
 }

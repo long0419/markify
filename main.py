@@ -68,7 +68,6 @@ if not os.path.exists("output/images"):
 app.mount("/images", StaticFiles(directory="output/images"), name="images")
 
 
-
 # from slowapi import Limiter, _rate_limit_exceeded_handler
 # from slowapi.errors import RateLimitExceeded
 # from slowapi.util import get_remote_address
@@ -93,7 +92,7 @@ class JobResultResponse(BaseModel):
     format: str
 
 
-def process_file(db: Session, job_id: str, file_content: bytes, filename: str, pdf_mode: str = "simple"):
+def process_file(db: Session, job_id: str, file_content: bytes, filename: str, mode: str = "simple"):
     """处理各种文件的后台任务"""
     try:
         # 更新任务状态为 processing
@@ -105,7 +104,7 @@ def process_file(db: Session, job_id: str, file_content: bytes, filename: str, p
         db.commit()
 
         # 创建处理器
-        markitdown = MarkItDown(pdf_mode=pdf_mode)
+        markitdown = MarkItDown(mode=mode)
 
         # 根据输入类型处理
         if filename.endswith('.md'):
@@ -136,7 +135,7 @@ def process_file(db: Session, job_id: str, file_content: bytes, filename: str, p
 async def upload_file(
         background_tasks: BackgroundTasks,
         file: UploadFile = File(...),
-        pdf_mode: str = Form("simple"),
+        mode: str = Form("simple"),
         db: Session = Depends(get_db)
 ):
     """上传文件并启动转换任务"""
@@ -151,7 +150,7 @@ async def upload_file(
         job = Job(
             id=job_id,
             filename=file.filename,
-            params={"pdf_mode": pdf_mode},
+            params={"mode": mode},
             status="pending"
         )
         db.add(job)
@@ -164,7 +163,7 @@ async def upload_file(
             job_id=job_id,
             file_content=content,
             filename=file.filename,
-            pdf_mode=pdf_mode
+            mode=mode
         )
 
         return {"job_id": job_id}

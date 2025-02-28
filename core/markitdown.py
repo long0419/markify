@@ -44,13 +44,12 @@ class MarkItDown:
         llm_model: Optional[str] = None,
         style_map: Optional[str] = None,
         exiftool_path: Optional[str] = None,
-        pdf_mode: str = "simple",  # simple|advanced|cloud
-        # 新增pdf_mode参数
+        mode: str = "simple",  # simple|advanced|cloud
         # Deprecated
         mlm_client: Optional[Any] = None,
         mlm_model: Optional[str] = None,
     ):
-        self.pdf_mode = pdf_mode
+        self.mode = mode
         if requests_session is None:
             self._requests_session = requests.Session()
         else:
@@ -115,10 +114,10 @@ class MarkItDown:
 
         # 动态注册PDF转换器
         # 确保PDF转换器只处理PDF文件
-        if self.pdf_mode == 'advanced':
+        if self.mode == 'advanced':
             from core.converters.pdf import AdvancedPdfConverter
             self.register_page_converter(AdvancedPdfConverter())
-        elif self.pdf_mode == 'cloud':
+        elif self.mode == 'cloud':
             from core.converters.pdf import CloudPdfConverter
             self.register_page_converter(CloudPdfConverter())
         else:  # 默认simple模式

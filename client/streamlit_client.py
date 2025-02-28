@@ -27,13 +27,13 @@ def fetch_jobs(page=0, limit=10):
         return []
 
 
-def upload_file(file, pdf_mode):
+def upload_file(file, mode):
     """
     上传单个文件到后端，创建任务。
     成功后立刻刷新页面，以获取最新的任务列表。
     """
     files = {"file": file}
-    data = {"pdf_mode": pdf_mode}
+    data = {"mode": mode}
     try:
         response = requests.post(f"{BASE_URL}/api/jobs", files=files, data=data)
         if response.status_code == 202:
@@ -45,12 +45,12 @@ def upload_file(file, pdf_mode):
         st.error(f"网络异常：{e}")
 
 
-def upload_url(url, pdf_mode):
+def upload_url(url, mode):
     """
     上传单个 URL 到后端，创建任务。
     成功后立刻刷新页面，以获取最新的任务列表。
     """
-    data = {"url": url, "pdf_mode": pdf_mode}
+    data = {"url": url, "mode": mode}
     try:
         response = requests.post(f"{BASE_URL}/api/jobs/url", json=data)
         if response.status_code == 202:
@@ -70,7 +70,7 @@ def show_file_entry(job):
         "job_id": "xxx",
         "status": "completed",
         "filename": "test.pdf",
-        "params": {"pdf_mode": "simple"},
+        "params": {"mode": "simple"},
         "error": null,
         "created_at": "2025-02-25T10:00:00"
       }
@@ -129,7 +129,7 @@ def main():
 
     with left_col:
         st.subheader("上传设置")
-        pdf_mode = st.selectbox("选择 PDF 处理模式", ["simple", "advanced", "cloud"])
+        mode = st.selectbox("选择 PDF 处理模式", ["simple", "advanced", "cloud"])
 
         # 本地文件上传
         uploaded_files = st.file_uploader(
@@ -139,7 +139,7 @@ def main():
         )
         if uploaded_files and st.button("上传文件"):
             for file in uploaded_files:
-                upload_file(file, pdf_mode)
+                upload_file(file, mode)
 
         # URL 上传
         st.subheader("URL 上传")
@@ -147,7 +147,7 @@ def main():
         if file_urls and st.button("提交 URL"):
             for url in file_urls.strip().split("\n"):
                 if url:
-                    upload_url(url.strip(), pdf_mode)
+                    upload_url(url.strip(), mode)
 
         # 结果存储位置（仅作提示）
         st.markdown(f"**解析结果存储路径**：`{os.path.expanduser('~')}/MinerU`")
