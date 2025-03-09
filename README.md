@@ -82,3 +82,8 @@ docker run -d -p 20926:20926 wsjcuhk/markify:0.0.1
 ## TODO
 - 优化Mineru中输出的图像地址为本机地址
 - 添加云端解析模式
+
+## 致敬
+本项目参考微软markitdown和上海浦语mineru。
+- [markitdown](https://github.com/microsoft/markitdown)
+- [mineru](https://github.com/opendatalab/MinerU)
