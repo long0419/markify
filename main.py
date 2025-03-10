@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
         # 初始化模型
         configurator = ModelConfigurator(
             device=os.getenv("MINERU_DEVICE", MINER_RUNNING_DEVICE),
-            use_modelscope=True
+            use_modelscope=os.getenv("MINERU_USE_MODELSCOPE", "true").lower() in ("true", "1")
         )
         configurator.setup_environment()
         print("模型初始化完成")
