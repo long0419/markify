@@ -93,10 +93,12 @@ class JobResultResponse(BaseModel):
     format: str
 
 
-oai_client = openai.OpenAI(
-    api_key=os.getenv("MARKIFY_LLM_API_KEY", None),
-    base_url=os.getenv("MARKIFY_LLM_API_BASE", None)
-)
+oai_client = None
+if os.getenv("MARKIFY_LLM_API_KEY", None) and os.getenv("MARKIFY_LLM_API_BASE", None):
+    oai_client = openai.OpenAI(
+        api_key=os.getenv("MARKIFY_LLM_API_KEY", None),
+        base_url=os.getenv("MARKIFY_LLM_API_BASE", None)
+    )
 
 
 def process_file(db: Session, job_id: str, file_content: bytes, filename: str, mode: str = "simple"):

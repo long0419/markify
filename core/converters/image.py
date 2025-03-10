@@ -52,7 +52,14 @@ class ImageConverter(MediaConverter):
                 ).strip()
                 + "\n"
             )
+        else:
+            md_content += """
+    Image description need set following env:
 
+        - MARKIFY_LLM_API_BASE
+        - MARKIFY_LLM_API_KEY
+        - MARKIFY_LLM_MODE
+"""
         return DocumentConverterResult(
             title=None,
             text_content=md_content,
