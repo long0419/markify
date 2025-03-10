@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional, List
 
+import openai
 from fastapi import FastAPI, UploadFile, File, HTTPException, status, Depends, BackgroundTasks, Form, Query
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -92,6 +93,12 @@ class JobResultResponse(BaseModel):
     format: str
 
 
+oai_client = openai.OpenAI(
+    api_key=os.getenv("MARKIFY_LLM_API_KEY", None),
+    base_url=os.getenv("MARKIFY_LLM_API_BASE", None)
+)
+
+
 def process_file(db: Session, job_id: str, file_content: bytes, filename: str, mode: str = "simple"):
     """处理各种文件的后台任务"""
     try:
@@ -104,7 +111,10 @@ def process_file(db: Session, job_id: str, file_content: bytes, filename: str, m
         db.commit()
 
         # 创建处理器
-        markitdown = MarkItDown(mode=mode)
+        markitdown = MarkItDown(mode=mode,
+                                llm_client=oai_client,
+                                llm_model=os.getenv("MARKIFY_LLM_MODEL", None)
+                                )
 
         # 根据输入类型处理
         if filename.endswith('.md'):

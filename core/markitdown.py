@@ -8,7 +8,6 @@ import traceback
 from pathlib import Path
 from typing import Any, List, Optional, Union
 from urllib.parse import urlparse
-from warnings import warn
 
 # File-format detection
 import puremagic
@@ -45,9 +44,6 @@ class MarkItDown:
         style_map: Optional[str] = None,
         exiftool_path: Optional[str] = None,
         mode: str = "simple",  # simple|advanced|cloud
-        # Deprecated
-        mlm_client: Optional[Any] = None,
-        mlm_model: Optional[str] = None,
     ):
         self.mode = mode
         if requests_session is None:
@@ -57,35 +53,6 @@ class MarkItDown:
 
         if exiftool_path is None:
             exiftool_path = os.environ.get("EXIFTOOL_PATH")
-
-        # Handle deprecation notices
-        #############################
-        if mlm_client is not None:
-            if llm_client is None:
-                warn(
-                    "'mlm_client' is deprecated, and was renamed 'llm_client'.",
-                    DeprecationWarning,
-                )
-                llm_client = mlm_client
-                mlm_client = None
-            else:
-                raise ValueError(
-                    "'mlm_client' is deprecated, and was renamed 'llm_client'. Do not use both at the same time. Just use 'llm_client' instead."
-                )
-
-        if mlm_model is not None:
-            if llm_model is None:
-                warn(
-                    "'mlm_model' is deprecated, and was renamed 'llm_model'.",
-                    DeprecationWarning,
-                )
-                llm_model = mlm_model
-                mlm_model = None
-            else:
-                raise ValueError(
-                    "'mlm_model' is deprecated, and was renamed 'llm_model'. Do not use both at the same time. Just use 'llm_model' instead."
-                )
-        #############################
 
         self._llm_client = llm_client
         self._llm_model = llm_model
