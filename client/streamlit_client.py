@@ -118,10 +118,10 @@ def show_file_entry(job):
 # ============ 主函数 ============
 
 def main():
-    st.set_page_config(page_title="Markify", layout="wide")
+    st.set_page_config(page_title="OnChain PLM LLM && RAG", layout="wide")
 
     # 页面标题与说明
-    st.title("Markify - 文档处理")
+    st.title("OnChain PLM LLM && RAG - 文档处理")
     st.markdown("在左侧上传文件或提交 URL，右侧实时查看进度并下载结果。")
 
     # 布局：左侧上传，右侧列表
