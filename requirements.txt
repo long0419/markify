@@ -26,6 +26,7 @@ uvicorn>=0.34.0
 sqlalchemy>=2.0.37
 # Development dependencies (optional, install with `-r dev-requirements.txt`)
 mypy>=1.0.0
+pyreqif
 
 fastapi~=0.115.7
 pydantic~=2.10.5
