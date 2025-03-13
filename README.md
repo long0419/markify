@@ -74,8 +74,8 @@ curl -X 'GET' \
 
 ## Docker部署
 ```shell
-docker pull wsjcuhk/markify:0.0.1
-docker run -d -p 20926:20926 wsjcuhk/markify:0.0.1
+docker build -t onchain-llm-textextract .
+docker run -d -p 20926:20926 onchain-llm-textextract:latest
 ```
 
 
